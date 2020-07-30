@@ -28,8 +28,13 @@ export class ManagerController {
         return this.managerService.findAll();
     }
 
-    @Post('add')
-    async add(@Body() params:any){
+    @Post('register')
+    async register(@Body() params){
+        var json = {};
+        var manager = this.managerService.find(json);
+        if( !manager ){
+            return '管理员已存在';
+        }
         return this.managerService.add(params);
     }
 

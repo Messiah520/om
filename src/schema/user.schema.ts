@@ -1,12 +1,31 @@
 import * as mongoose from 'mongoose';
 
-export const UserSchema = new mongoose.Schema({
-    userName:String,        //用户名
-    userType:String,        //用户类型
-    password:String,        //密码
-    postage:String,         //资费
-    mainCollection:String,  //主收款
-    userStatus:String,      //用户状态
-    weChat:String,          //微信
+// const Collection = new mongoose.Schema({
+//     mainCollection:Number,      //主收款
+// });
 
+export const UserSchema = new mongoose.Schema({
+    
+    userNum:{               //账户
+        type:String,
+    },         
+    userName:{              //商户名
+        type:String,
+    },        
+    userType:{              //用户类型
+        type:String, 
+    },       
+    password:{              //密码
+        type:String,
+    },        
+    postage:{               //资费
+        type:String,
+    },         
+    userStatus:{            //用户状态
+        type:String,
+        default:'正常'
+    },      
+    weChat:{
+        type:String,
+    }          
 });

@@ -7,7 +7,7 @@ export class ManagerService {
 
     constructor(@InjectModel('Manager') private readonly managerModel){}
 
-    async findAll(){
+    async findAll() {
         try{
             return await this.managerModel.find().exec();
         } catch(error){
@@ -15,7 +15,7 @@ export class ManagerService {
         }
     }
 
-    async findByNameAndPassword(json:ManagerInterface){
+    async findByNameAndPassword(json:ManagerInterface) {
         try{
             return await this.managerModel.find(json).exec();
         } catch(error){
@@ -23,10 +23,18 @@ export class ManagerService {
         }
     }
 
-    async add(json:ManagerInterface){
+    async add(json:ManagerInterface) {
         try{
             var manager = this.managerModel(json);
             return await manager.save();
+        } catch(error){
+            return null;
+        }
+    }
+
+    async find(json:ManagerInterface) {
+        try{
+            return this.managerModel.find(json).exec();
         } catch(error){
             return null;
         }
