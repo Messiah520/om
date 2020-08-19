@@ -4,13 +4,13 @@ export interface EquipmentInterface {
     equipmentName?:String;
     bindingStatus?:String;
     mainCollectionNum?:Number;
-    bindingTime?:Number;
+    bindingTime?:Date;
     operator?:String;
     operate?:String;
     transferNum?:Number;            //转送次数
     originalAccount?:Number;        //原账户
     remark?:String;
-    productionTime?:Number;
+    productionTime?:Date;
     APPID?:Number;
     IMEI?:Number;
     

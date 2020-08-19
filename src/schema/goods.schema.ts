@@ -33,10 +33,10 @@ export const GoodsSchema = new mongoose.Schema({
         type:String
     },
     auditSubmitTime:{       //审核提交时间
-        type:String
+        type:Date
     },
     auditCompleteTime:{     //审核完成时间
-        type:String,
+        type:Date,
     }
 
 });

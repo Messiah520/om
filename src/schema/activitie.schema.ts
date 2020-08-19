@@ -15,10 +15,10 @@ export const ActivitieSchema = new mongoose.Schema({
         type:String
     },
     startTime:{             //活动开始时间
-        type:Number
+        type:Date
     },
     endTiem:{               //活动结束时间
-        type:Number
+        type:Date
     },
     link:{
         type:String

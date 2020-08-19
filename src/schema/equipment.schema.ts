@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 
 export const EquipmentSchema = new mongoose.Schema({
     equipmentNum:{
-        type:Number,        //设备号
+        type:String,        //设备号
     },
     equipmentName:{
         type:String,       //设备名称
@@ -11,13 +11,13 @@ export const EquipmentSchema = new mongoose.Schema({
         type:String,       //绑定状态
     },
     bindingUserNum:{
-        type:Number,      //绑定用户
+        type:String,      //绑定用户
     },
     mainCollectionNum:{
-        type:Number,      //主收款
+        type:String,      //主收款
     },
     bindingTime:{
-        type:Number,         //绑定时间 
+        type:Date,         //绑定时间 
     },            
     operator:{
         type:String,            //操作人
@@ -35,7 +35,7 @@ export const EquipmentSchema = new mongoose.Schema({
         type:String,
     },
     productionTime:{            //生产时间
-        type:Number,
+        type:Date,
     },
     APPID:{
         type:Number,

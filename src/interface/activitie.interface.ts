@@ -3,8 +3,8 @@ export interface ActivitieInterface {
     activitieName?:String;
     details?:String;
     activitieType?:String;
-    startTime?:Number;
-    endTime?:Number;
+    startTime?:Date;
+    endTime?:Date;
     link?:String;
     status?:String;
 

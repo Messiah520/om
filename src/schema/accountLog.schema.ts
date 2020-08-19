@@ -4,13 +4,13 @@ const d = new Date();
 
 export const AccountLogSchema = new mongoose.Schema({
     orderNum:{
-        type:Number,
+        type:String,
     },
     mainCollectionNum:{
-        type:Number
+        type:String
     },
     app:{
-        type:Number,
+        type:String,
     },
     transferInAmount:{          //转入金额
         type:Number
@@ -18,8 +18,8 @@ export const AccountLogSchema = new mongoose.Schema({
     income:{
         type:Number,
     },
-    AccountingTiem:{
-        type:Number,
+    accountingTiem:{
+        type:Date,
         default:d.getTime()
     },
 })

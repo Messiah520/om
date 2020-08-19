@@ -1,11 +1,13 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { EquipmentService } from 'src/service/equipment/equipment.service';
 import { json } from 'express';
+import { EquipmentRecordService } from 'src/service/equipment-record/equipment-record.service';
 
 @Controller('equipment')
 export class EquipmentController {
 
-    constructor(private readonly equipmentService:EquipmentService){}
+    constructor(private readonly equipmentService:EquipmentService,
+                private readonly equipmentRecodServie:EquipmentRecordService){}
     
     //设备绑定
     @Post('binding')
@@ -50,5 +52,28 @@ export class EquipmentController {
         return this.equipmentService.find(params);
     }
 
+    //查看设备转送足迹
+    @Post('transferRecord')
+    async transferRecord(@Body() json) {
+
+        const pageNum = Number(json.Number);
+        const pageSize = Number(json.pageSize);
+
+        const result = await this.equipmentRecodServie.getModel().aggregate([
+            {
+                $match: {
+                    $and: [
+
+                    ]
+                }
+            },
+            {
+
+            }
+        ]);
+
+        return result;
+    }
+    
 
 }

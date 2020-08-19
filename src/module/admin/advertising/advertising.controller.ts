@@ -9,18 +9,23 @@ export class AdvertisingController {
 
     //新增广告
     @Post('add')
-    add(@Body() params) {
+    async add(@Body() params) {
+        // var json = { startTime:params.startTime,endTiem:params.endTiem };
+        // var array = this.advertisingService.find(json);
+        // if( !array ){
+        //     return null;
+        // }
         var json = { startTime:params.startTime,endTiem:params.endTiem };
-        var array = this.advertisingService.find(json);
-        if( array != null ){
-            return null;
+        var result = this.advertisingService.aggregate(json);
+        if( !result ){
+            return '此时间段已存在广告';
         }
         return this.advertisingService.add(params);
     }
 
     //删除广告
     @Post('delete')
-    delete(@Body() params) {
+    async delete(@Body() params) {
         return this.advertisingService.delete(params);
     }
 
@@ -44,16 +49,16 @@ export class AdvertisingController {
     //上架广告
     @Post('onShelf')
     onShelf(@Body() params) {
-        var json1 = { };
-        var josn2 = { };
-        return this.advertisingService.update(json1,josn2);
+        var json1 = { };                        //查询条件
+        var josn2 = { status : '上架' };        //修改
+        return this.advertisingService.update(params,josn2);
     }
 
     //下架广告
     @Post('offShelf')
     offShelf(@Body() params) {
         var json1 = { };
-        var josn2 = { };
+        var josn2 = { status : '下架' };
         return this.advertisingService.update(json1,josn2);
     }
 

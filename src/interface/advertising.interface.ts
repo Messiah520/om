@@ -4,8 +4,8 @@ export interface AdvertisingInterface {
     advertisingName?:String;
     position?:String;
     sort?:Number;
-    startTime?:Number;
-    endTime?:Number;
+    startTime?:Date;
+    endTime?:Date;
     link?:String;
     status?:String;
     

@@ -10,18 +10,21 @@ export class ApplicationController {
 
     //新增应用
     @Post('addAPPCODE')
-    add(@Body() params){
+    async addAPPCODE(@Body() params){
         var json = { APPCODE : params.APPCODE };
-        var appCode = this.applicationService.find(json);
-        if( !appCode ){
+        var appCode = await this.applicationService.find(json);
+        console.log(appCode.length);
+
+        if( appCode.length <= 0 ){
             return this.applicationService.add(params);
         }
+        //return this.applicationService.add(params);
         return 'appCode已经存在';
     }
 
     //批量生成
     @Post('addAppId')
-    addAppId(@Body() params) {
+    async addAppId(@Body() params) {
         var json = { APPCODE : params.APPCODE };
         var appCode = this.appIdService.find(json);
         var n = params.number;
@@ -37,13 +40,13 @@ export class ApplicationController {
 
     //删除appid
     @Post('deleteAppId')
-    deleteAppId(@Body() params){
+    async deleteAppId(@Body() params){
         return this.appIdService.delete(params);
     }
 
     //批量删除appid
     @Post('deleteAppIds')
-    deleteAppIds(@Body() params){
+    async deleteAppIds(@Body() params){
         return this.appIdService.delete(params);
     }
 

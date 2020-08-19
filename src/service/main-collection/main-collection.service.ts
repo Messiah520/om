@@ -6,7 +6,8 @@ import { RelationUMAInterface } from 'src/interface/relationUMA.interface';
 @Injectable()
 export class MainCollectionService {
 
-    constructor(@InjectModel('MainCollection') private readonly mainCollectionModel){}
+    constructor(@InjectModel('MainCollection') private readonly mainCollectionModel,
+                @InjectModel('MainCollectionNumRecord') private readonly mainCollectionNumRecordModel){}
 
     async update(json1:MainCollectionInterface,json2:MainCollectionInterface){
         try{
@@ -60,6 +61,23 @@ export class MainCollectionService {
         return {
             list:result
         };
+    }
+
+    getMainCollectionNumRecordModel(){
+         return this.mainCollectionNumRecordModel;
+    }
+
+    //思考问题：mongoDB有级联删除吗
+    getModel(){
+        return this.mainCollectionModel;
+    }
+
+    async find(json:MainCollectionInterface) {
+        try{
+            return await this.mainCollectionModel.find(json).exec();
+        } catch(error) {
+            return null;
+        }
     }
 
 }

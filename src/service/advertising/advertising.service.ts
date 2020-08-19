@@ -26,7 +26,7 @@ export class AdvertisingService {
 
     async find(json:AdvertisingInterface){
         try{
-            return await this.advertisingModel.find(json).exec();
+            return await this.advertisingModel.find().exec();
         } catch(error){
             return null;
         }
@@ -34,10 +34,21 @@ export class AdvertisingService {
 
     async delete(json:AdvertisingInterface) {
         try{
-            return this.advertisingModel.delete(json);
+            return await this.advertisingModel.deleteOne(json);
         } catch(error){
-            return null;
+            return '删除失败';
         }
+    }
+
+    async aggregate(json:AdvertisingInterface) {
+        var result = await this.advertisingModel.aggregate([
+            {
+                $match: {
+                    startTime:{ $gte:json.startTime },
+                    endTime:{ $lt:json.endTime }
+                }
+            }
+        ]);
     }
     
 }

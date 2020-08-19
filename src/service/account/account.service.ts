@@ -7,7 +7,7 @@ export class AccountService {
 
     constructor(@InjectModel('Account') private readonly accountModel){}
 
-    //添加银行卡
+    
     async add(json:AccountInterface) {
         try{
             var account = new this.accountModel(json);
@@ -44,13 +44,13 @@ export class AccountService {
 
 
     //审核通过
-    async auditPass(json1:AccountInterface,json2:AccountInterface) {
-        try{
-            return await this.accountModel.updateOne(json1,json2);
-        } catch(error){
-            return null;
-        }
-    }
+    // async auditPass(json1:AccountInterface,json2:AccountInterface) {
+    //     try{
+    //         return await this.accountModel.updateOne(json1,json2);
+    //     } catch(error){
+    //         return null;
+    //     }
+    // }
 
     //统计
     async count(json:AccountInterface) {
@@ -61,5 +61,35 @@ export class AccountService {
         }
     }
 
+    getModel(){
+        return this.accountModel;
+    }
+
+    async relationMian(json) {
+        try{
+            return await this.accountModel.aggregate([
+                {
+                    $lookup: {
+                        from : '',
+                        localField : '',
+                        foreignField : '',
+                        as : 'items'
+                    }
+                },
+                {
+                    $match: {
+                        $and: [
+                            {
+                                cardId : { $regex: json.cardId }
+                            }
+                        ]
+                    }
+                }
+            ]);
+
+        } catch(error){
+            return null;
+        }
+    }
 
 }
