@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const d = new Date();
+
 //银行卡
 export const AccountSchema = new mongoose.Schema({
     
@@ -16,11 +17,11 @@ export const AccountSchema = new mongoose.Schema({
         type:String,
         default: ''
     },      
-    certificate:{         //证件号，对私账户只有证件号
+    certificate:{               //证件号，对私账户只有证件号
         type:String,
         default: ''
     },
-    cardId:{
+    cardId:{                    //银行卡号
         type:String,
         default: ''
     },         

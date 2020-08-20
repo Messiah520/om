@@ -1,11 +1,13 @@
 import * as mongoose from 'mongoose';
 
+//主收款信息表
 export const MainCollectionSchema = new mongoose.Schema({
-    userNum:{               //账户(注意运维平台的超级管理员也可能用主收款账号)
+
+    userNum:{               //账户（关联user表的userNum）
         type:String,
         default: ''
     },             
-    mainCollectionNum:{       //主收款
+    mainCollectionNum:{     //主收款账户
         type:String,
         default: ''
     },      

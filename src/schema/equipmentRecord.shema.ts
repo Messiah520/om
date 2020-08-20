@@ -10,7 +10,7 @@ export const EquipmentRecordSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    bindingUserNum: {
+    userNum: {
         type: String,
         default: ''
     },
@@ -18,19 +18,19 @@ export const EquipmentRecordSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    transferTime: {
+    transferTime: {             //转送时间
         type: Date,
         default: Date.now
     },
-    operator: {
+    operator: {                 //操作人
         type: String, 
-        default: ''           //操作人
+        default: ''            
     },
     originalAccount: {           //原账户
         type:String,    
         default: '' 
     },
-    remark: {
+    remark: {                   //备注
         type: String,
         default: ''
     }

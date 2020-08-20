@@ -49,6 +49,37 @@ export class UserService {
         }
     }
 
+    //多条件模糊分页查询查询
+    async aggregate(pageNum, pageSize, sort, json:UserInterface) {
+
+        try{
+            return await this.userModel.aggregate([
+                {
+                    $match: {
+                        $and: [
+                            {
+                                $regex: { userNum: json.userNum }
+                            },
+                            {
+                                $regex : { userName: json.userName }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $limit: pageSize
+                },
+                {
+                    $skip: (pageNum-1)*pageSize
+                }
+            ]);
+
+        }catch(error) {
+            return null;
+        }
+
+    }
+
     //用户-主收款-银行卡号
     async relationFind(json){
 

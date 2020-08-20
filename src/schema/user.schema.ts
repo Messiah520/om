@@ -1,9 +1,6 @@
 import * as mongoose from 'mongoose';
 
-// const Collection = new mongoose.Schema({
-//     mainCollection:Number,      //主收款
-// });
-
+//商户表
 export const UserSchema = new mongoose.Schema({
     
     userNum:{               //账户

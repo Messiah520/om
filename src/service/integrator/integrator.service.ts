@@ -31,7 +31,7 @@ export class IntegratorService {
         try{
             return await this.integratorModel.find(json).exec();
         } catch(error) {
-            return [];
+            return null;
         }
     }
 

@@ -5,6 +5,7 @@ import { EquipmentService } from 'src/service/equipment/equipment.service';
 import { SettlementService } from 'src/service/settlement/settlement.service';
 import { machineId, machineIdSync } from 'node-machine-id';
 import { uuid } from 'node-uuid';
+import { json } from 'express';
 
 @Controller('order')
 export class OrderController {
@@ -13,12 +14,6 @@ export class OrderController {
                 private readonly accountLogService:AccountLogService,
                 private readonly equipmentService : EquipmentService,
                 private readonly settlementService: SettlementService){}
-
-    //支付查询
-    @Post('findOrder')
-    find(@Body() param){
-        return this.orderService.find(param);
-    }
 
     /*
     当订单生产的时候，且支付状态为已经支付，就会生成两个记账日志 （订单生成的时候，同时生成两个记账日志）
@@ -69,22 +64,103 @@ export class OrderController {
         }
     }
 
+    //支付查询
+    @Post('payStatus')
+    async findByPayStatus(@Body() json) {
+
+        const pageNum = Number(json.pageNum);
+        const pageSize = Number(json.pageSize);
+
+        var sort = { createTime : -1 };
+
+        if( !json.payStatus && !json.equipmentNum && !json.payChannel
+            && !json.orderNum && !json.app && !json.startTime && !json.endTime ){
+                return {};
+        }
+        if( !json.payStatus ){
+            json.payStatus = '';
+        }
+        if( !json.equipmentNum ){
+            json.equipmentNum = '';
+        }
+        if( !json.payChannel ){
+            json.payChannel = '';
+        }
+        if( !json.orderNum ){
+            json.orderNum = '';
+        }
+        if( !json.app ){
+            json.app = '';
+        }
+        if( !json.startTime ){
+            json.startTime = '';
+        }
+        if( !json.endTime ){
+            json.endTime = '';
+        }
+
+        var result = await this.orderService.findByPayStatus(pageNum, pageSize, sort, json);
+
+        var paymentNum = await this.orderService.getPaymentNum();
+
+        var paymentAmount = await this.orderService.getPaymentAmount();
+
+        return {
+            //查询结果
+            'result': result,
+            //已支付笔数
+            'paymentNum': paymentNum,
+            //已支付金额
+            'paymentAmount': paymentAmount
+        }
+    }
+
+    //出货查询
+    @Post('shipment')
+    async findByShipment(@Body() json) {
+
+        const pageNum = Number(json.pageNum);
+        const pageSize = Number(json.pageSize);
+
+        var sort = { createTime : -1 };
+
+        if( !json.shipmentStatus && !json.equipmentNum && !json.payChannel
+            && !json.orderNum && !json.app && !json.startTime && !json.endTime ){
+                return {};
+        }
+        if( !json.shipmentStatus ){
+            json.shipmentStatus = '';
+        }
+        if( !json.equipmentNum ){
+            json.equipmentNum = '';
+        }
+        if( !json.payChannel ){
+            json.payChannel = '';
+        }
+        if( !json.orderNum ){
+            json.orderNum = '';
+        }
+        if( !json.app ){
+            json.app = '';
+        }
+        if( !json.startTime ){
+            json.startTime = '';
+        }
+        if( !json.endTime ){
+            json.endTime = '';
+        }
+
+        var result = await this.orderService.findByShipment(pageNum, pageSize, sort, json);
+
+        return {
+            result: result
+        }
+    }
+
     //订单生成
     @Post('addOrder')
     add(@Body() param){
         return this.orderService.add(param);
-    }
-
-    //测试生成订单日志
-    //记账日志生成
-    @Post('addAccountLog')
-    addAccountLog(@Body() params) {
-        this.accountLogService.add(params);
-        params.transferInAmount = 10;
-        params.income = 23;
-
-        this.accountLogService.add(params);
-        return 'success';
     }
 
     //记账日志查询
@@ -99,20 +175,15 @@ export class OrderController {
     */
    @Post('queryAccountLog')
    async queryAccountLog(@Body() body) {
-        
         /*
             当每个条件框输入的信息为空（空格 null undifined)
             返回 查询结果为空
-
             否则 进行多条件模糊匹配 
             前提进行 字符串除去左右空格
-
             如果需要对数字进行匹配时建议用 字符串来保存数字，
             当对数字进行 运算时 把它转换为数字
-
             时间的比较
         */
-
         /*
             如何处理并发问题
             以连续生成两个记账日志为 “一个事物”
@@ -156,69 +227,6 @@ export class OrderController {
         ])
    }
 
-   //多条件模糊查询  时间降序
-   @Post('fuzzyQuery_Order')
-   async fuzzyQuery(@Body() Body){
-
-        return await this.orderService.fuzzyQuery(Body);
-
-   }
-
-   //$regex has to be a string
-   //this.orderService.getModel().find().count();  统计记录数量
-   @Post('fuzzyQuery_Order2')
-   async fuzzyQuery_Order2(@Body() json) {
-
-   //分页   获取数据总长度
-   const pageNum = Number(json.pageNum);   //页码
-   const pageSize = Number(json.pageSize);  //
-
-   const skipNum = (pageNum-1)*pageSize;
-
-    if( !json.payStatus ){
-        json.payStatus = '';
-    }
-    if( !json.equipmentNum ){
-        json.equipmentNum = '';
-    }
-    if( !json.payChannel ){
-        json.payChannel = '';
-    }
-    if( !json.orderNum ){
-        json.orderNum = '';
-    }
-    
-    return await this.orderService.getModel().aggregate([
-        {
-            $match: {
-                $and: [
-                    {
-                        payStatus : { $regex : json.payStatus }
-                    },
-                    {
-                        equipmentNum : { $regex : json.equipmentNum }
-                    },
-                    {
-                        payChannel : { $regex : json.payChannel }
-                    },
-                    {
-                        orderNum : { $regex : json.orderNum }
-                    },
-                ]
-            }
-        },
-        {
-            $skip: skipNum
-        },
-        {
-            $limit: pageSize
-        },
-        {
-            $sort: { 'createTime' : -1 }
-        }
-    ]);
-   }
-
 
    //根据pageSize返回页数
    @Post('pageNum')
@@ -230,95 +238,6 @@ export class OrderController {
 
     //返回天花板数
     return Math.ceil(count/pageSize);
-   }
-
-   //结算查询 分页+多条件模糊查询
-   @Post('settlement')
-   async settlement(@Body()  body) {
-       
-    const pageNum = Number(body.pageNum);
-    const pageSize = Number(body.pageSize);
-
-    //条件的过滤
-    if( !body.mainCollectionNum ){
-        body.mainCollectionNum = '';
-    }
-
-    const result = await this.settlementService.getModel().aggregate([
-        {
-            $match: {
-                $and: [
-                    {
-
-                    },{
-
-                    },{
-
-                    },{
-
-                    }
-                ]
-            }
-        },
-        {
-            $limit:  1     //size
-        },
-        {
-            $skip:   1       //跳过
-        },
-        {
-            $sort: { '' : 1 }   //排序
-        }
-    ]);
-
-    return result;
-   }
-
-   //记账日志的查询
-   @Post('accountLog')
-   async accountLog(@Body() json) {
-
-        const pageNum = Number(json.pageNum);
-        const pageSize = Number(json.pageSize);
-
-        const result = await this.accountLogService.getModel().aggregate([
-            {
-                $match: {
-                    $and: [
-
-                    ]
-                }
-            },
-            {
-
-            }
-        ]);
-
-        return result;
-
-   }
-
-   //订单统计
-   //统计并返回 成功笔数以及成功转账金额
-   @Post('sum')
-   async sum() {
-
-    //金额
-    const sum = await this.orderService.getModel().aggregate([
-        {
-            $match: { payStatus : '成功' }
-        },
-        {
-            $group: { _id : "$payStatus" , total: {$sum: '$orderAmount'} }
-        }
-    ]);
-
-    const count = await this.orderService.getModel().find({payStatus: '成功'}).count();
-    return {
-        sum: sum,
-        count: count
-    }
-
    }
 
    //accountLog 根据size的页数查询
@@ -373,8 +292,7 @@ export class OrderController {
 
    }
 
-/////////////////////////////////////////////////////
-/////////////////////////////////
+/////////////////////////////////////////////////////测试
     @Post('qm')
     async qm() {
 
@@ -399,44 +317,32 @@ export class OrderController {
    //测试方法
    @Get('tx')
    async tx() {
-
     //天花板数
     console.log(Math.ceil(4/3));
-
     //生成同一个 机器码
     var id = await machineId();
     var id1 = await machineId();
     //var id2 = await machineIdSync({ original: true });
-
     /**
      * 
      */
     // var uuid = require('node-uuid');
     // nest的语法 import { uuid } from 'node-uuid' 有错
-
     // //建议使用v1 根据时间戳生成，唯一
     // var uuid11 = uuid.v1();
     // var uuid12 = uuid.v1();
-
     // //根据随机数生成  可能不唯一
     // var uuid4 = uuid.v4(); 
-
     // console.log(id);
-
     // console.log(id1);
-
-    
     // console.log('uuid uuid11: '+uuid11);
     // console.log('uuid uuid12: '+uuid12);
     // console.log(uuid4);
-
     var num = 5/3;
     console.log(num);
-    
     //取小数后两位
     console.log(num.toFixed(2));    
     console.log(1.646.toFixed(2));
-    
    }
 
 }

@@ -27,8 +27,51 @@ export class AppIdRecordService {
         }
     }
 
-     getModel() {
+    //appid转送记录
+    async aggregate(pageNum, pageSize, sort, json:AppIdRecordInterface) {
+
+        try{
+            return await this.appIdRecordModel.aggregate([
+                {
+                    $match: {
+                        $and: [
+                            {
+                                $regex: { appName: json.appName }
+                            },
+                            {
+                                $regex: { APPCODE: json.APPCODE }
+                            },
+                            {
+                                $regex: { targetAccount: json.targetAccount }
+                            },
+                            {
+                                transferTime : { $get : json.startTime }
+                            },
+                            {
+                                transferTime : { $let : json.endTime }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $limit: pageSize
+                },
+                {
+                    $skip: (pageNum-1)*pageSize
+                },
+                {
+                    $sort: sort
+                }
+            ]);
+        } catch(error) {
+            return null;
+        }
+    }
+
+    getModel() {
         return  this.appIdRecordModel;
     }
+
+
 
 }

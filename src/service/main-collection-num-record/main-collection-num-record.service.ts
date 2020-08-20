@@ -21,17 +21,23 @@ export class MainCollectionNumRecordService {
         }
     }
 
-    async aggregate(json:MainCollectionRecordInterface) {
+    async aggregate(pageNum, pageSize, sort, json:MainCollectionRecordInterface) {
         try{
             return await this.mainCollectionNumRecordModel.aggregate([
                 {
                     $match : {
                         mainCollectionNum : { $regex : json.mainCollectionNum }
                     }
+                },{
+                    $limit: pageSize
+                },{
+                    $skip: (pageNum-1)*pageSize
+                },{
+                    $sort: sort
                 }
             ]);
         } catch(error) {
-            return [];
+            return null;
         }
     }
 

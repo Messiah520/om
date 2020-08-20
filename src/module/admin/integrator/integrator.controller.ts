@@ -2,7 +2,6 @@ import { Controller, Post, Body, Get } from '@nestjs/common';
 import { IntegratorService } from 'src/service/integrator/integrator.service';
 import { AppIdService } from 'src/service/app-id/app-id.service';
 import { AppIdRecordService } from 'src/service/app-id-record/app-id-record.service';
-import { json } from 'express';
 import { AccountService } from 'src/service/account/account.service';
 import { MainCollectionNumRecordService } from 'src/service/main-collection-num-record/main-collection-num-record.service';
 import { ApplicationService } from 'src/service/application/application.service';
@@ -22,22 +21,20 @@ export class IntegratorController {
                 private readonly orderService: OrderService,
                 ){}
 
-    //////待测试
     //集成商开户
     @Post('add')
     async addIntegrator(@Body() body) {
 
-        var integrator = await this.integratorService.find(body);
+        var integrators = await this.integratorService.find(body);
 
-        if( integrator.length<=0 ){
+        if( integrators.length<=0 ){
             return await this.integratorService.add(body);
         }
-
         return '用户已存在';
-
     }
 
-    
+    //绑定结算信息
+    @Post()
     //集成商概况：
     @Post('find')
     async findIntegrator(@Body() body) {
@@ -51,7 +48,6 @@ export class IntegratorController {
     async updatePwd(@Body() body) {
         var json1 = { 'integratorNum' : body.integratorNum };
         var json2 = { 'password' : body.password };
-
         return await this.integratorService.update(json1,json2);
     }
 
@@ -182,6 +178,7 @@ export class IntegratorController {
                       targetAccount : json.targetAccount,
                       operator : json.operator,
                       };
+
         await this.appIdRecordService.addRecord(json1);
     }
 
@@ -195,7 +192,12 @@ export class IntegratorController {
     @Post('transferRecord')
     async transferRecord(@Body() json) {
 
-        if( !json.appName && !json.APPCODE && !json.targetAccount && !json.transferTime ){
+        const pageNum = Number(json.pageNum);
+        const pageSize = Number(json.pageSize);
+
+        var sort = { transferTime : -1 };
+
+        if( !json.appName && !json.APPCODE && !json.targetAccount && !json.startTime && !json.endTime ){
             return [];
         }
         if( !json.appName ){
@@ -204,43 +206,21 @@ export class IntegratorController {
         if( !json.APPCODE ){
             json.APPCODE = '';
         }
-        if( !json.transferTime ){
-            json.transferTime = '';
-        }
         if( !json.targetAccount ){
             json.targetAccount = '';
         }
-        const result = await this.appIdRecordService.getModel().aggregate([
-            {
-                $match: {
-                    $and: [
-                        {
-                            $regex: { appName: json.appName }
-                        },
-                        {
-                            $regex: { APPCODE: json.APPCODE }
-                        },
-                        {
-                            $regex: { targetAccount: json.targetAccount }
-                        },
-                        // {
-                        //     createTime : { $get : json.startTime }
-                        // },
-                        // {
-                        //     createTime : { $let : json.endTime }
-                        // }
-                        {
-                            transferTime : { $get : json.startTime }
-                        },
-                        {
-                            transferTime : { $let : json.endTime }
-                        }
-                    ]
-                }
-            },
-        ]);
+        if( !json.startTime ){
+            json.startTime = '';
+        }
+        if( !json.endTime ){
+            json.endTime = '';
+        }
 
-        return result;
+        var result = await this.appIdRecordService.aggregate(pageNum, pageSize, sort, json);
+
+        return {
+            'result': result
+        }
     } 
 
 
@@ -267,7 +247,6 @@ export class IntegratorController {
 
     }
 
-
     //注销账号时，解除所有银行卡的绑定
     @Post('cancel')
     async cancel(@Body() body) {
@@ -291,7 +270,6 @@ export class IntegratorController {
          for( var i=0;i<mainArray.length;i++){
              await this.accountService.update({'mainCollectionNum':mainArray[i]},{'mainCollectionNum':''});
          }
-
     }
 
 ////////////////////////
@@ -358,15 +336,12 @@ export class IntegratorController {
             }
         ]);
 
-        
         return {
             result1: result1,
             result2: result2,
             result3: result3
-            
         }
     }
-
 
     //大于小于的测试
     // {
@@ -392,8 +367,7 @@ export class IntegratorController {
             }
         ]);
 
-        return result;
-        
+        return result; 
     }
 
 }

@@ -42,21 +42,40 @@ export class AccountService {
         }
     }
 
+    //多条件 模糊分页查询
+    async aggregate(pageNum,pageSize,sort,json: AccountInterface) {
 
-    //审核通过
-    // async auditPass(json1:AccountInterface,json2:AccountInterface) {
-    //     try{
-    //         return await this.accountModel.updateOne(json1,json2);
-    //     } catch(error){
-    //         return null;
-    //     }
-    // }
-
-    //统计
-    async count(json:AccountInterface) {
         try{
-
-        } catch(error){
+            return await this.accountModel.aggregate([
+                {
+                    $match:{
+                        $and: [
+                            {
+                                cardId: { $regex: json.cardId}
+                            },
+                            {
+                                status: { $regex: json.status}
+                            },
+                            {
+                                auditSubmitTime : { $gte : 0 }
+                            },
+                            {
+                                auditSubmitTime : { $lte : 100 }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $limit: pageSize
+                },
+                {
+                    $skip: (pageNum-1)*pageSize
+                },
+                {
+                    $sort: sort
+                }
+            ])
+        }catch(error) {
             return null;
         }
     }

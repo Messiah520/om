@@ -22,15 +22,19 @@ export class ApplicationController {
         return 'appCode已经存在';
     }
 
-    //批量生成
+    //批量生成appid，前提appcode已存在
     @Post('addAppId')
     async addAppId(@Body() params) {
+
+        //引入uuid
+        var uuid = require('node-uuid');
+
         var json = { APPCODE : params.APPCODE };
         var appCode = this.appIdService.find(json);
         var n = params.number;
         if( appCode ){
             for( var i = 0 ; i < n ; i++ ){
-                this.appIdService.add({ APPID : '123',APPCODE : params.APPCODE });
+                this.appIdService.add({ APPID : uuid.v1(), APPCODE : params.APPCODE });
             }
             return '创建成功';
         }
@@ -47,7 +51,7 @@ export class ApplicationController {
     //批量删除appid
     @Post('deleteAppIds')
     async deleteAppIds(@Body() params){
-        return this.appIdService.delete(params);
+        
     }
 
     

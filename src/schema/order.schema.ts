@@ -2,17 +2,18 @@ import * as mongoose from 'mongoose';
 
 const d = new Date();
 
+//订单表
 export const OrderSchema = new mongoose.Schema({
     
     APPCODE: {          //订单号直接关联APPCODE，有利于加快查询熟读 
         type:String,
         default: ''
     },
-    orderNum:{
+    orderNum:{          //订单号
         type:String,
         default: ''
     },
-    equipmentNum:{
+    equipmentNum:{       //设备号，关联设备
         type:String,
         default: ''
     },
@@ -20,7 +21,7 @@ export const OrderSchema = new mongoose.Schema({
         type:String,
         default: ''
     },
-    app:{
+    app:{                   //应用
         type:Number,
         default: 0
     },

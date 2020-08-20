@@ -24,38 +24,28 @@ export class OrderService {
         }
     }
 
-    //多条件模糊查询
-    async fuzzyQuery(json: OrderInterface ){
+    //订单的支付查询
+    async findByPayStatus(pageNum, pageSize, sort, json: OrderInterface) {
 
-        if( !json.payStatus ){
-            json.payStatus = '';
-        }
-        if( !json.payChannel ){
-            json.payChannel = ';'
-        }
-        if( !json.equipmentNum ){
-            json.equipmentNum = '';
-        }
-        
         try{
             return await this.orderModel.aggregate([
                 {
-                    $match : {
-                        $and : [
+                    $match: {
+                        $and: [
                             {
-                                payStatus : { $regex : json.payStatus }
+                                $regex: { shipmentStatus : json.shipmentStatus }
                             },
                             {
-                                equipmentNum : { $regex : json.equipmentNum }
+                                $regex: { equipmentNum : json.equipmentNum }
+                            }, 
+                            {
+                                $regex: { payChannel : json.payChannel }
                             },
                             {
-                                payChannel : { $regex : json.payChannel }
+                                $regex: { orderNum : json.orderNum }
                             },
                             {
-                                orderNum : { $regex : json.orderNum }
-                            },
-                            {
-                                app : { $regex : json.app }
+                                $regex: { app : json.app }
                             },
                             {
                                 createTime : { $gte : json.startTime }
@@ -65,14 +55,99 @@ export class OrderService {
                             }
                         ]
                     }
-                },{
-                    $project: { _v:0}
-                },{
-                    $sort : { createTime : -1 }
+                },
+                {
+                    $limit: pageSize
+                },
+                {
+                    $skip: (pageNum-1)*pageSize
+                },
+                {
+                    $sort:sort
+                },
+            ]);
+        } catch(error) {
+            return null;
+        }
+    }
+
+    //订单的出货查询
+    async findByShipment(pageNum, pageSize, sort, json: OrderInterface) {
+
+        try{
+            return await this.orderModel.aggregate([
+                {
+                    $match: {
+                        $and: [
+                            {
+                                $regex: { shipmentStatus : json.shipmentStatus }
+                            },
+                            {
+                                $regex: { equipmentNum : json.equipmentNum }
+                            }, 
+                            {
+                                $regex: { payChannel : json.payChannel }
+                            },
+                            {
+                                $regex: { orderNum : json.orderNum }
+                            },
+                            {
+                                $regex: { app : json.app }
+                            },
+                            {
+                                createTime : { $gte : json.startTime }
+                            },
+                            {
+                                createTime : { $lte : json.endTime }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $limit: pageSize
+                },
+                {
+                    $skip: (pageNum-1)*pageSize
+                },
+                {
+                    $sort:sort
+                },
+            ]);
+        } catch(error) {
+            return null;
+        }
+    }
+
+    //获取支付笔数
+    async getPaymentNum() {
+
+        try{
+            return await this.orderModel.aggregate([
+                {
+                    $match: { payStatus : '成功' }
+                },
+                {
+                    $group: { _id : "$payStatus" , total: { $sum: 1 } }
                 }
             ]);
         } catch(error) {
-            return [];
+            return null;
+        }
+    }
+
+    //获取支付金额
+    async getPaymentAmount() {
+        try{
+            return await this.orderModel.aggregate([
+                {
+                    $match: { payStatus : '成功' }
+                },
+                {
+                    $group: { _id : "$payStatus" , total: {$sum: '$orderAmount'} }
+                }
+            ]);
+        } catch(error) {
+            return null;
         }
     }
 
@@ -80,6 +155,4 @@ export class OrderService {
         return this.orderModel;
     }
 
-    
-    
 }

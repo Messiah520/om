@@ -41,5 +41,24 @@ export class EquipmentService {
         }
     }
 
+    async findByStatus(pageNum, pageSize, sort, json: EquipmentInterface) {
+        try{
+            return await this.equipmentModel.aggregate([
+
+            ]);
+        } catch(error) {
+            return null;
+        }
+    }
+
+    async findByDetails(pageNum, pageSize, sort, json: EquipmentInterface) {
+        try{
+            return await this.equipmentModel.aggregate([
+
+            ]);
+        } catch(error) {
+            return null;
+        }
+    }
          
 }

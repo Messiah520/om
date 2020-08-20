@@ -11,7 +11,7 @@ export class EquipmentController {
     
     //设备绑定
     @Post('binding')
-    binding(@Body() params) {
+    async binding(@Body() params) {
         var json1 = { equipmentNum : params.equipmentNum };     //查询的条件
         var json2 = { mainCollectionNum : params.mainCollectionNum };    //修改的值
         return this.equipmentService.update(json1,json2);
@@ -19,61 +19,101 @@ export class EquipmentController {
 
     //设备解绑
     @Post('unBinding')
-    unBinding(@Body() params) {
+    async unBinding(@Body() params) {
         var json1 = { equipmentNum : params.equipmentNum };     //查询的条件
         var json2 = { mainCollectionNum : null };    //修改的值
         return this.equipmentService.update(json1,json2);
     }
 
-    //设备转送
+    //设备转送并生成转送记录
     @Post('transfer')
-    transfer(@Body() params){
+    async transfer(@Body() params){
         var json1 = { equipmentNum : params.equipmentNum };        //查询的条件
         var n = params.number+1;   //次数加一
         var json2 = { mainCollectionNum : params.mainCollectionNum, number : n };         //修改
-        return this.equipmentService.update(json1,json2);
+        
+        var result = await this.equipmentService.update(json1,json2);
+
+        return {
+            result: result
+        }
     }
 
     //设备转送足迹
     @Post('transferFoot')
-    transferFoot(@Body() params) {
-        return this.equipmentService.find(params);
+    async transferFoot(@Body() json) {
+
+        const pageNum = Number(json.pageNum);
+        const pageSize = Number(json.pageSize);
+
+        //转送时间倒序
+        var sort = { transferTime : -1 };
+
+        if( !json.equipmentNum && !json.userNum && !json.startTime && !json.endTime ){
+            return {};
+        }
+        if( !json.equipmentNum ) {
+            json.equipmentNum = '';
+        }
+        if( !json.userNum ) {
+            json.userNum = '';
+        }
+
+        var result = await this.equipmentRecodServie.aggregate(pageNum, pageSize, sort, json);
+        return {
+            result: result
+        }
     }
 
     //设备状态
     @Post('status')
-    status(@Body() params) {
-        return this.equipmentService.find(params);
+    async status(@Body() json) {
+        
+        var pageNum = Number(json.pageNum);
+        var pageSize = Number(json.pageSize);
+
+        var sort = { bindingTime : -1 };
+
+        if( !json.equipmentNum && !json.userNum && !json.status ){
+            return {};
+        }
+        if( !json.equipmentNum ) {
+            json.equipmentNum = '';
+        }
+        if( !json.status ) {
+            json.status = '';
+        }
+        var result = await this.equipmentService.findByStatus(pageNum, pageSize, sort, json);
+
+        return {
+            result: result
+        }
     }
 
     //设备详情
     @Post('detail')
-    detail(@Body() params) {
-        return this.equipmentService.find(params);
+    async detail(@Body() json) {
+        
+        var pageNum = Number(json.pageNum);
+        var pageSize = Number(json.pageSize);
+
+        var sort = {};
+
+        if( !json.equipmentNum && !json.userNum && !json.APPID && !json.IMEI ){
+            return {};
+        }
+        if( !json.equipmentNum ) {
+            json.equipmentNum = '';
+        }
+        if( !json.userNum ) {
+            json.userNum = '';
+        }
+        var result = await this.equipmentService.findByDetails(pageNum, pageSize, sort, json);
+
+        return {
+            result: result
+        }
+
     }
-
-    //查看设备转送足迹
-    @Post('transferRecord')
-    async transferRecord(@Body() json) {
-
-        const pageNum = Number(json.Number);
-        const pageSize = Number(json.pageSize);
-
-        const result = await this.equipmentRecodServie.getModel().aggregate([
-            {
-                $match: {
-                    $and: [
-
-                    ]
-                }
-            },
-            {
-
-            }
-        ]);
-
-        return result;
-    }
-    
 
 }
